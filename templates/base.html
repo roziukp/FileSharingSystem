@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Project</title>
+    {% load staticfiles %}
+    <link href="{% static 'mainapp/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
+
+    <style>
+        body
+        {
+            background-image: url("https://w-dog.ru/wallpapers/9/19/538869885838337.jpg");
+        }
+    </style>
+</head>
+<body>
+    {% block content %}
+        <h1>Testing</h1>
+    {% endblock %}
+</body>
+</html>

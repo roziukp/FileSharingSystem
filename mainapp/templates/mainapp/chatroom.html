@@ -1,0 +1,13 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                {% for items in users %}
+                    <p>User: {{ items.username }} email: {{ items.email }}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
