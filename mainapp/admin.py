@@ -12,3 +12,4 @@ class FilesAdmin(admin.ModelAdmin):
 
 admin.site.register(models.Files, FilesAdmin)
 admin.site.register(models.Profile,)
+admin.site.register(models.TechnicalTask)

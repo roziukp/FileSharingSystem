@@ -6,8 +6,10 @@ from django.conf import settings
 from . import models
 from django.contrib import auth
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 
+# simple registration to default user model
 class Registration(View):
     template_name = 'mainapp/registration.html'
     form_class = forms.UserForm
@@ -22,25 +24,24 @@ class Registration(View):
 
             users = models.Profile.objects.all()
             username_list = [i.username for i in users]
-            email_list = [i.email for i in users]
 
-            if request.POST.get('username') not in username_list and request.POST.get('email') not in email_list:
-                form.save()
+            if request.POST.get('username') not in username_list:     # check if user is unique
+                profile = form.save()
 
                 newuser = auth.authenticate(username=form.cleaned_data['username'],
-                                            password=form.cleaned_data['password'], )
+                                            password=form.cleaned_data['password1'], )
                 if newuser is not None:
                     auth.login(request, newuser)
                     messages.success(request, 'User has been registered!')
-                return redirect('/', {'message': messages})
 
-                # from_email = settings.EMAIL_HOST_USER
-                # to_email = profile.email
-                # message = 'Welcome, {} thanks for registration!'.format(profile.username)
-                # send_mail('', message=message, from_email=from_email, recipient_list=[to_email])
+                    from_email = settings.EMAIL_HOST_USER
+                    to_email = profile.email
+                    message = 'Welcome, {} thanks for registration!'.format(profile.username)
+                    send_mail('', message=message, from_email=from_email, recipient_list=[to_email])
+                    return redirect('/', {'message': messages})
 
             else:
-                error_message = 'User with this username or email is already exists! Try another username'
+                error_message = 'User with this username is already exists! Try another username'
                 return render(request, self.template_name, {'form': form,
                                                             'error_message': error_message
                                                             })
@@ -66,15 +67,21 @@ class Login(View):
             return render(request, 'index.html', self.context)
 
 
+@login_required
+def logout(request):
+    auth.logout(request)
+    return redirect('/')
+
+
 def registered_users(request):
     context = dict()
     context['users'] = models.Profile.objects.all()
     return render(request, 'mainapp/chatroom.html', context)
 
 
-class AddFile(View):
-    template_name = 'mainapp/add_file.html'
-    form_class = forms.FilesForm
+class AddTask(View):
+    template_name = 'mainapp/add-new-task.html'
+    form_class = forms.AddNewTask
 
     def get(self, request):
         form = self.form_class()
@@ -82,14 +89,42 @@ class AddFile(View):
 
     def post(self, request):
         form = self.form_class(request.POST)
+
         if form.is_valid():
-            fileform = form.save(commit=False)
-            fileform.user = models.Profile.objects.last()
-            fileform.save()
-            return render(request, self.template_name, {'form': form,
-                                                        'success': 'File was succesfuly added!'})
+            task_form = form.save(commit=False)
+            task_form.user = request.user
+            task_form.save()
+            return redirect('/')
 
         else:
-            error_message = 'Something is wrong with your data!'
-            return render(request, self.template_name, {'form': form,
-                                                        'eror_message': error_message})
+            error = 'Something was wrong'
+            return render(request, self.template_name, {'error': error})
+
+
+def task_collection(request):
+    template_name = 'index.html'
+    tasks = models.TechnicalTask.objects.values('theme', 'id')
+    return render(request, template_name, {'tasks': tasks})
+
+
+# class AddFile(View):
+#     template_name = 'mainapp/add-new-task.html'
+#     form_class = forms.FilesForm
+#
+#     def get(self, request):
+#         form = self.form_class()
+#         return render(request, self.template_name, {'form': form})
+#
+#     def post(self, request):
+#         form = self.form_class(request.POST)
+#         if form.is_valid():
+#             fileform = form.save(commit=False)
+#             fileform.user = models.Profile.objects.last()
+#             fileform.save()
+#             return render(request, self.template_name, {'form': form,
+#                                                         'success': 'File was succesfuly added!'})
+#
+#         else:
+#             error_message = 'Something is wrong with your data!'
+#             return render(request, self.template_name, {'form': form,
+#                                                         'eror_message': error_message})
