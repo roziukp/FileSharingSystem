@@ -1,13 +1,59 @@
 {% extends 'index.html' %}
 
 {% block content %}
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col">
-                {% for items in users %}
-                    <p>User: {{ items.username }} email: {{ items.email }}</p>
-                {% endfor %}
+    <div class="container-fluid pt-4">
+        <div class="row justify-content-center">
+            <div class="col-8">
+                 <div class="card text-center">
+                        <div class="card-header">
+                            <h2>{{ task.theme }}</h2>
+                        </div>
+                        <div class="card-body">
+                            <p><h5>{{ task.description }}</h5></p>
+                        </div>
+                        <div class="card-footer text-muted">
+                            <i>{{ task.pub_date }}</i>  {{ task.user.username }}
+                        </div>
+                 </div>
             </div>
         </div>
     </div>
+
+    {% if replies_collection %}
+        <div class="row justify-content-center">
+            <div class="col-6">
+                 {% for i in replies_collection %}
+                     <p style="color: #1e7e34">Author: {{ i.user.username }}</p>
+                     <p>{{ i.message }}</p>
+
+                 {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row justify-content-center pt-4">
+        <div class="col-6">
+             <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                     <div class="form-group">
+                         <label for="reply"><h3>Your reply</h3></label>
+                         <textarea name="{{ form.message.name }}" class="form-control" cols="6" placeholder="Inpute your comment..."></textarea>
+                     </div>
+                     <div class="form-group">
+                         <label for="reply"><h3>Add file</h3></label>
+                         <input type="file" name="{{ form.file.name }}">
+                     </div>
+                    <button type="submit" class="btn btn-primary form-control">Submit</button>
+                </form>
+        </div>
+    </div>
+
+{#    <div>#}
+{#        {% if messages %}#}
+{#            {% for message in messages %}#}
+{#                <h3>{{ message }}</h3>#}
+{#            {% endfor %}#}
+{#        {% endif %}#}
+{#    </div>#}
+
 {% endblock %}

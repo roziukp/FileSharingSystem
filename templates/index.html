@@ -57,10 +57,18 @@
       {% endif %}
   </div>
 </nav>
+
 {% block content %}
+    <h2 align="center">Tasks</h2>
     <ol>
         {% for task in tasks %}
-            <li>{{ task.theme }}</li>
+            <li>
+                <h5>Theme: <a href="/chatroom/{{ task.id }}">{{ task.theme }}</a></h5>
+                <ul>
+                    <i><li> Author: {{ task.user.username }} </li></i>
+                    <i><li> Publication date: {{ task.pub_date }}</li></i>
+                </ul>
+            </li>
         {% endfor %}
     </ol>
 {% endblock %}

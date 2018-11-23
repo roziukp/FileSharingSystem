@@ -7,6 +7,7 @@ from . import models
 from django.contrib import auth
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, get_list_or_404
 
 
 # simple registration to default user model
@@ -72,13 +73,13 @@ def logout(request):
     auth.logout(request)
     return redirect('/')
 
-
+@login_required
 def registered_users(request):
     context = dict()
     context['users'] = models.Profile.objects.all()
     return render(request, 'mainapp/chatroom.html', context)
 
-
+@login_required
 class AddTask(View):
     template_name = 'mainapp/add-new-task.html'
     form_class = forms.AddNewTask
@@ -100,11 +101,45 @@ class AddTask(View):
             error = 'Something was wrong'
             return render(request, self.template_name, {'error': error})
 
-
+@login_required
 def task_collection(request):
     template_name = 'index.html'
-    tasks = models.TechnicalTask.objects.values('theme', 'id')
+    tasks = models.TechnicalTask.objects.all()
     return render(request, template_name, {'tasks': tasks})
+
+
+# one simple task for discussion
+# def simple_task(request, task_id):
+#     template_name = 'mainapp/chatroom.html'
+#     task = get_object_or_404(models.TechnicalTask, id=task_id)
+#     return render(request, template_name, {'task': task})
+
+
+
+@login_required
+# adding reply to the task
+def add_reply(request, task_id):
+    template_name = 'mainapp/chatroom.html'
+    form = forms.RepliesForm(request.POST, request.FILES)
+    task = get_object_or_404(models.TechnicalTask, id=task_id)  # one task ---> for comments
+    replies_collection = models.Replies.objects.filter(technical_task__id=task_id)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            reply = form.save(commit=False)
+            reply.user = request.user
+            reply.technical_task = get_object_or_404(models.TechnicalTask, id=task_id)
+            if request.FILES:
+                print(request.FILES.getlist('file'))
+            reply.save()
+            messages.success(request, 'Your comment was added successfuly!')
+        return redirect('/')
+    else:
+        form = forms.RepliesForm()
+        return render(request, template_name, {'form': form,
+                                               'task': task,
+                                               'replies_collection': replies_collection})
+
 
 
 # class AddFile(View):

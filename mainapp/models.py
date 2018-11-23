@@ -22,7 +22,6 @@ class Files(models.Model):
     def get_file_path(self, filename):
         return '{}/{}'.format(datetime.strftime(datetime.now(), '%Y_%m_%d'), filename)
 
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE, blank=False, null=False)
     file = models.FileField(upload_to=get_file_path, blank=True, null=True)
 
 
@@ -37,12 +36,19 @@ class TechnicalTask(models.Model):
         return 'Task: {}'.format(self.theme)
 
 
-class Replies(MPTTModel):
+class Replies(MPTTModel, Files):
     parent = TreeForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name='children')
-    file = models.ForeignKey(Files, on_delete=models.CASCADE, blank=True, null=True)
+    # files = models.ForeignKey(Files, on_delete=models.CASCADE, blank=True, null=True, related_name='reply_files')
     pub_date = models.DateTimeField(default=timezone.now())
     message = models.TextField(verbose_name='Replies to the task')
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=False, null=False)
+    technical_task = models.ForeignKey(TechnicalTask, on_delete=models.CASCADE, null=True,
+                                       blank=False, related_name='technical_task')
 
     class Meta:
-        ordering = ['pub_date', ]
+        ordering = ['-pub_date', ]
+
+# mptt.register(Replies, order_insertion_by=['pub_date'])
+
+
+

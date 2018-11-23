@@ -23,3 +23,10 @@ class FilesForm(forms.ModelForm):
     class Meta:
         model = models.Files
         exclude = ['user']
+
+
+class RepliesForm(forms.ModelForm):
+
+    class Meta:
+        model = models.Replies
+        exclude = ['user', 'pub_date', 'technical_task', 'files']

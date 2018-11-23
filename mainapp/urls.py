@@ -10,7 +10,8 @@ urlpatterns = [
     url(r'^registration/$', views.Registration.as_view(), name='registration'),
     path('chatroom/', views.registered_users, name='registered_users'),
     url(r'^add-new-task/$', views.AddTask.as_view(), name='add_new_task'),
-    # path('add-file/', views.AddFile.as_view(), name='add_file'),
+    url(r'^chatroom/(?P<task_id>.+)/$', views.add_reply, name='add_reply')
+
 ]
 
 
