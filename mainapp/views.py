@@ -8,6 +8,7 @@ from django.contrib import auth
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, get_list_or_404
+from django.utils.decorators import method_decorator
 
 
 # simple registration to default user model
@@ -26,7 +27,7 @@ class Registration(View):
             users = models.Profile.objects.all()
             username_list = [i.username for i in users]
 
-            if request.POST.get('username') not in username_list:     # check if user is unique
+            if request.POST.get('username') not in username_list:  # check if user is unique
                 profile = form.save()
 
                 newuser = auth.authenticate(username=form.cleaned_data['username'],
@@ -68,18 +69,20 @@ class Login(View):
             return render(request, 'index.html', self.context)
 
 
-@login_required
+# @login_required
 def logout(request):
     auth.logout(request)
     return redirect('/')
 
-@login_required
+
+# @login_required
 def registered_users(request):
     context = dict()
     context['users'] = models.Profile.objects.all()
     return render(request, 'mainapp/chatroom.html', context)
 
-@login_required
+
+# @method_decorator(login_required, name='dispatch')
 class AddTask(View):
     template_name = 'mainapp/add-new-task.html'
     form_class = forms.AddNewTask
@@ -101,7 +104,7 @@ class AddTask(View):
             error = 'Something was wrong'
             return render(request, self.template_name, {'error': error})
 
-@login_required
+
 def task_collection(request):
     template_name = 'index.html'
     tasks = models.TechnicalTask.objects.all()
@@ -116,7 +119,6 @@ def task_collection(request):
 
 
 
-@login_required
 # adding reply to the task
 def add_reply(request, task_id):
     template_name = 'mainapp/chatroom.html'
@@ -130,17 +132,17 @@ def add_reply(request, task_id):
             reply.user = request.user
             reply.technical_task = get_object_or_404(models.TechnicalTask, id=task_id)
             if request.FILES:
-                print(request.FILES.getlist('file'))
+                pass
             reply.save()
             messages.success(request, 'Your comment was added successfuly!')
-        return redirect('/')
+        return render(request, template_name, {'form': form,
+                                               'task': task,
+                                               'replies_collection': replies_collection})
     else:
         form = forms.RepliesForm()
         return render(request, template_name, {'form': form,
                                                'task': task,
                                                'replies_collection': replies_collection})
-
-
 
 # class AddFile(View):
 #     template_name = 'mainapp/add-new-task.html'

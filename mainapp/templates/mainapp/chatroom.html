@@ -1,5 +1,5 @@
 {% extends 'index.html' %}
-
+{% load mptt_tags %}
 {% block content %}
     <div class="container-fluid pt-4">
         <div class="row justify-content-center">
@@ -19,13 +19,57 @@
         </div>
     </div>
 
+{#    <div class="row justify-content-center">#}
+{#        <div class="col-6">#}
+{#                         <h1>Replies:</h1>#}
+{#                            {% if nodes %}#}
+{#                                    <ul class="root">#}
+{#                                        {% recursetree nodes %}#}
+{#                                            <li class="card mt-4">#}
+{#                                                <p class="card-body">#}
+{#                                                    Author: {{ node.user.username }}<br>#}
+{#                                                    {{ node.message }}<br>#}
+{#                                                    Date: {{ node.pub_date }}#}
+{#                                                         <button class="answer" onclick="diplay_hide('.{{ node.id }}');return false;">Answer</button>#}
+{#                                            <div class="row justify-content-center">#}
+{#                                                <div class="col-8">#}
+{#                                                         <form method="post" enctype="multipart/form-data" class="pb-4 {{ node.id }}" style="display: none;">#}
+{#                                                                {% csrf_token %}#}
+{#                                                                <div class="form-group">#}
+{#                                                                <label>Your comment:#}
+{#                                                                    <textarea class="form-control" name="{{ form.message.name }}"></textarea>#}
+{#                                                                </label>#}
+{#                                                                </div>#}
+{#                                                                <input type="hidden" name="{{ form.parent.name }}" value="{{ node.id }}">#}
+{#                                                               <div class="form-group">#}
+{#                                                                    <label for="reply">Add file</label>#}
+{#                                                                        <input type="file" name="{{ form.file.name }}">#}
+{#                                                                </div>#}
+{#                                                                <button type="submit"  class="btn btn-primary postcomment">Submit</button>#}
+{#                                                         </form>#}
+{#                                                </div>#}
+{#                                            </div>#}
+{#                                                    {% if not node.is_leaf_node %}#}
+{#                                                        <ul class="children">#}
+{#                                                            {{ children }}#}
+{#                                                        </ul>#}
+{#                                                    {% endif %}#}
+{#                                                </p>#}
+{#                                            </li>#}
+{#                                        {% endrecursetree %}#}
+{#                                    </ul>#}
+{#                            {% else %}#}
+{#                                <p>No comment yet!</p>#}
+{#                            {% endif %}#}
+{#        </div>#}
+{#    </div>#}
+
     {% if replies_collection %}
         <div class="row justify-content-center">
             <div class="col-6">
                  {% for i in replies_collection %}
                      <p style="color: #1e7e34">Author: {{ i.user.username }}</p>
                      <p>{{ i.message }}</p>
-
                  {% endfor %}
             </div>
         </div>
@@ -55,5 +99,21 @@
 {#            {% endfor %}#}
 {#        {% endif %}#}
 {#    </div>#}
+
+<script type="text/javascript">
+
+function diplay_hide (blockClass)
+{
+    if ($(blockClass).css('display') == 'none')
+        {
+            $(blockClass).animate({height: 'show'}, 500);
+        }
+    else
+        {
+            $(blockClass).animate({height: 'hide'}, 500);
+        }
+}
+
+</script>
 
 {% endblock %}
